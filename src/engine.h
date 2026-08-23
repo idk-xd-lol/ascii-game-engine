@@ -11,8 +11,8 @@
 #include <termios.h>
 
 #define SCRIPTS_BUCKET 32 
-#define MAX_EVENTS 256
-
+#define MAX_EVENTS 32
+#define ESC '\033'
 #define CLEAR "\e[1;1H\e[2J"
 
 /* SPRITES  */
@@ -60,7 +60,7 @@ typedef struct {
 
 typedef struct {
   int epoll_fd;
-  struct epoll_event events[10];
+  struct epoll_event events[MAX_EVENTS];
   struct termios old_term;
   bool initialized;
 
@@ -73,15 +73,17 @@ typedef struct {
 /* FUNCTIONS */
 
 //draw
-void draw(char *img, float x, float y);
-void draw_sprite(Sprite * sprite);
+void draw(char **img, float x, float y);
 void clear_term();
 
 //events
-static uint64_t get_time_ms();
 InputContext * input_init();
 void input_capture_keys(InputContext * ctx);
+
+Event * input_get_event(InputContext * ctx, int index);
+int input_poll(InputContext * ctx);
 void get_input_events(InputContext * ctx);
 void close_events(InputContext * ctx);
+
 
 #endif // !ENGINE_H

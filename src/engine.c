@@ -44,7 +44,7 @@ static uint64_t get_time_ms()
   return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 }
 
-void input_capture_key(InputContext * ctx)
+void input_capture_keys(InputContext * ctx)
 {
   ctx->events_count = 0;
   ctx->frame_time_ms = get_time_ms();
@@ -64,14 +64,32 @@ void input_capture_key(InputContext * ctx)
     for (int i = 0; i < bytes && ctx->events_count < MAX_EVENTS; i++)
     {
       Event evt;
-      evt.type = EVENT_KEY_PRESSED;
       evt.data.key.key = buffer[i];
+      if (buffer[i] == ESC) evt.type = EVENT_QUIT; 
+      else evt.type = EVENT_KEY_PRESSED;
       evt.data.key.timestamp = ctx->frame_time_ms;
       evt.data.key.is_hold = 0;
 
       ctx->events_queue[ctx->events_count++] = evt;
     }
   }
+}
+
+int input_poll(InputContext * ctx)
+{
+  input_capture_keys(ctx);
+  return ctx->events_count;
+}
+
+Event * input_get_event(InputContext * ctx, int index)
+{
+  if (index < 0 || index >= ctx->events_count)
+    return NULL;
+  return &ctx->events_queue[index];
+}
+
+void input_clear_events(InputContext* ctx) {
+    ctx->events_count = 0;
 }
 
 void close_events(InputContext * ctx)
@@ -82,10 +100,13 @@ void close_events(InputContext * ctx)
   free(ctx);
 }
 
-
 //draw
 void clear_term()
 {
   printf(CLEAR);
 }
 
+void draw(char *img, float x, float y)
+{
+  for i 
+}
