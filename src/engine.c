@@ -106,7 +106,37 @@ void clear_term()
   printf(CLEAR);
 }
 
-void draw(char *img, float x, float y)
+uint32_t ascii_to_uint(const char *a) 
 {
-  for i 
+  unsigned char *bytes = (unsigned char *)a;
+  size_t length = strlen(a);
+  uint32_t code = 0;
+  for (int i = 0; i < length; i++)
+  {
+    code = code << 8 | bytes[i];
+  }
+  return code;
+}
+
+//TODO
+// char * uint_to_ascii(uint32_t i) 
+// {
+//   buf * ;
+//   size_t length = strlen(a);
+//   uint32_t code = 0;
+//   for (int i = 0; i < length; i++)
+//   {
+//     code = code << 8 | bytes[i];
+//   }
+//   return code;
+// }
+//
+
+void draw(uint32_t **img, int heigth, int width, int x, int y)
+{
+  for(int i = 0; i < y; i++)
+    write(1, (int *)NEWLINE, 1);
+  for(int i = 0; i < x; i++)
+    write(1, (int *)EMPTY, 1);
+  write(1, &img[0][0], 1);
 }

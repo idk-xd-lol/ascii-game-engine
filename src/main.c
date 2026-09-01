@@ -1,6 +1,4 @@
 #include "engine.h"
-#include <stdlib.h>
-#include <unistd.h>
 
 int main()
 {
@@ -12,6 +10,12 @@ int main()
     .name = "cube",
   };
   cube.img = malloc(sizeof(int *) * cube.heigth);
+  for (int i = 0; i < cube.heigth; i++)
+  {
+    cube.img[i] = malloc(sizeof(uint32_t) * cube.heigth);
+  }
+  cube.img[0][0] = ascii_to_uint("🍉");
+  draw(cube.img, 0, 0, 10, 15);
   while(running)
   {
     int event_count = input_poll(input);

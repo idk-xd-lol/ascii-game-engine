@@ -17,6 +17,6 @@ main.o: main.c engine.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(TARGET) $(OBJ)
+	rm -f $(TARGET) $(OBJ) engine.d main.d
 
-
+-include $(OBJ:.o=.d)

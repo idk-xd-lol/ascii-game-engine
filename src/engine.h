@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <inttypes.h>
 
@@ -14,6 +15,8 @@
 #define MAX_EVENTS 32
 #define ESC '\033'
 #define CLEAR "\e[1;1H\e[2J"
+#define NEWLINE '\n'
+#define EMPTY ' '
 
 /* SPRITES  */
 typedef struct Script {
@@ -27,7 +30,7 @@ typedef struct {
   char * name;
   int heigth, width;
   int x, y;
-  int ** img;
+  uint32_t ** img;
   bool has_colison;
   int ** col_mask;
   Script * scripts;
@@ -73,7 +76,8 @@ typedef struct {
 /* FUNCTIONS */
 
 //draw
-void draw(char **img, float x, float y);
+uint32_t ascii_to_uint(const char * a);
+void draw(uint32_t **img, int heigth, int width, int x, int y);
 void clear_term();
 
 //events
