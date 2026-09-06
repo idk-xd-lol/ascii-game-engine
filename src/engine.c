@@ -1,10 +1,7 @@
 #include "engine.h"
-#include <bits/time.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <sys/epoll.h>
-#include <termios.h>
-#include <time.h>
-#include <unistd.h>
+#include <sys/types.h>
 
 //event 
 InputContext * input_init()
@@ -64,11 +61,11 @@ void input_capture_keys(InputContext * ctx)
     for (int i = 0; i < bytes && ctx->events_count < MAX_EVENTS; i++)
     {
       Event evt;
-      evt.data.key.key = buffer[i];
+      evt.key.raw_char = buffer[i];
       if (buffer[i] == ESC) evt.type = EVENT_QUIT; 
       else evt.type = EVENT_KEY_PRESSED;
-      evt.data.key.timestamp = ctx->frame_time_ms;
-      evt.data.key.is_hold = 0;
+      evt.key.timestamp = ctx->frame_time_ms;
+      evt.key.is_hold = 0;
 
       ctx->events_queue[ctx->events_count++] = evt;
     }
@@ -103,40 +100,54 @@ void close_events(InputContext * ctx)
 //draw
 void clear_term()
 {
-  printf(CLEAR);
+  printf("%s\n", CLEAR);
 }
 
-uint32_t ascii_to_uint(const char *a) 
-{
-  unsigned char *bytes = (unsigned char *)a;
-  size_t length = strlen(a);
-  uint32_t code = 0;
-  for (int i = 0; i < length; i++)
-  {
-    code = code << 8 | bytes[i];
-  }
-  return code;
-}
-
-//TODO
-// char * uint_to_ascii(uint32_t i) 
-// {
-//   buf * ;
-//   size_t length = strlen(a);
-//   uint32_t code = 0;
-//   for (int i = 0; i < length; i++)
-//   {
-//     code = code << 8 | bytes[i];
-//   }
-//   return code;
-// }
-//
-
-void draw(uint32_t **img, int heigth, int width, int x, int y)
+void draw(UtfChar **img, int heigth, int width, int x, int y)
 {
   for(int i = 0; i < y; i++)
-    write(1, (int *)NEWLINE, 1);
-  for(int i = 0; i < x; i++)
-    write(1, (int *)EMPTY, 1);
-  write(1, &img[0][0], 1);
+    write(1, "\n", 1);
+  for (int h = 0; h < heigth; h++) 
+  {
+    for(int i = 0; i < x; i++)
+      write(1, SPACE, 1);
+
+    for (int w = 0; w < width; w++)
+    {
+      write(1, img[h][w].utf8, img[h][w].length);
+    }
+    write(1, "\n", 1);
+  }
 }
+
+void draw_sprite(Sprite sprite)
+{
+  UtfChar ** img = sprite.img;
+  int x = sprite.x;
+  int y = sprite.y;
+  int width = sprite.width;
+  int heigth = sprite.heigth;
+  for(int i = 0; i < y; i++)
+    write(1, "\n", 1);
+  for (int h = 0; h < heigth; h++) 
+  {
+    for(int i = 0; i < x; i++)
+      write(1, SPACE, 1);
+
+    for (int w = 0; w < width; w++)
+    {
+      write(1, img[h][w].utf8, img[h][w].length);
+    }
+    write(1, "\n", 1);
+  }
+
+}
+
+UtfChar get_utfchar(char * s){
+  UtfChar utfchar;
+  utfchar.utf8 = s;
+  utfchar.length = strlen(s);
+  return utfchar;
+}
+
+
