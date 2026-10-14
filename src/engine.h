@@ -57,25 +57,25 @@ typedef enum {
 } EventType;
 
 typedef enum {
-    KEY_TYPE_CHAR,
-    KEY_TYPE_ARROW_UP,
-    KEY_TYPE_ARROW_DOWN,
-    KEY_TYPE_ARROW_LEFT,
-    KEY_TYPE_ARROW_RIGHT,
-    KEY_TYPE_ESC,
-    KEY_TYPE_BACKSPACE,
-    KEY_TYPE_ENTER,
-    KEY_TYPE_TAB,
-    KEY_TYPE_DELETE,
-    KEY_TYPE_HOME,
-    KEY_TYPE_END,
-    KEY_TYPE_PAGEUP,
-    KEY_TYPE_PAGEDOWN,
-    KEY_TYPE_UNKNOWN
+    KEY_NORMAL,
+    KEY_ARROW_UP, 
+    KEY_ARROW_DOWN,
+    KEY_ARROW_LEFT,
+    KEY_ARROW_RIGHT,
+    KEY_ESC,
+    KEY_BACKSPACE,
+    KEY_ENTER,
+    KEY_TAB,
+    KEY_DELETE,
+    KEY_HOME,
+    KEY_END,
+    KEY_PAGEUP,
+    KEY_PAGEDOWN,
+    KEY_UNKNOWN
 } KeyType;
 
 typedef struct {
-  KeyType key;
+  KeyType type;
   char raw_char;
   uint64_t timestamp;
   bool is_hold;
@@ -96,15 +96,30 @@ typedef struct {
   Event events_queue[MAX_EVENTS];
   int events_count;
   uint64_t frame_time_ms;
+
+  uint8_t key_state[256];
+
+  char escape_buffer[ESCAPE_BUFER_SIZE];
+  int escape_buffer_len;
+  uint32_t escape_last_ms;
 } InputContext;
 
 /*KEY PARSING */
+
 typedef struct {
   char buffer[ESCAPE_BUFER_SIZE];
   int pos;
   uint64_t last_read_time_ms;
 } EscapeParser;
 
+typedef struct {
+  KeyType type;
+  uint8_t raw_byte;
+} ParsedKey;
+
+ParsedKey parse_single_key(char byte);
+ParsedKey parse_escape_sequence(const char * seq, int len);
+int is_escape_complete(const char* buffer, int len);
 
 /* FUNCTIONS */
 
@@ -118,10 +133,13 @@ void clear_term();
 InputContext * input_init();
 void input_capture_keys(InputContext * ctx);
 
+
 Event * input_get_event(InputContext * ctx, int index);
 int input_poll(InputContext * ctx);
 void get_input_events(InputContext * ctx);
 void close_events(InputContext * ctx);
+void input_add_event(InputContext * ctx, EventType type, ParsedKey key);
+void input_shutdown(InputContext *ctx);
+void detect_key_releases(InputContext* ctx);
 
-
-#endif // !ENGINE_H
+#endif // !ENGIE_H

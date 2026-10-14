@@ -36,16 +36,20 @@ int main()
       }
       else if (evt->type == EVENT_KEY_PRESSED)
       {
-        char key = evt->key.raw_char;
+        KeyEvent key = evt->key;
         uint64_t timestamp = evt->key.timestamp;
         // printf("key: %d, timestamp: %lu", key, timestamp);
 
-        if (key == 'a') cube.x-=2;
-        if (key == 'd') cube.x+=2;
+        if (key.raw_char == 'a' || key.type == KEY_ARROW_LEFT) cube.x-=2;
+        if (key.raw_char == 'd' || key.type == KEY_ARROW_RIGHT) cube.x+=2;
+        if (key.raw_char == 'w' || key.type == KEY_ARROW_UP) cube.y-=2;
+        if (key.raw_char == 's' || key.type == KEY_ARROW_DOWN) cube.y+=2;
       }
     }
     clear_term();
     draw_sprite(cube);
-    usleep(1666);
+    usleep(16660);
   }
+  input_shutdown(input);
+  return 0;
 }
